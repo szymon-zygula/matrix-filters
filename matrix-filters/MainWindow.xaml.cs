@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace matrix_filters {
     /// <summary>
@@ -22,7 +11,12 @@ namespace matrix_filters {
             InitializeComponent();
         }
         private void ButtonLoadImage_Click(object sender, RoutedEventArgs e) {
+            Bitmap bmp = InterfaceUtils.GetBitmapFromDialog();
+            if(bmp == null) {
+                return;
+            }
 
+            ImagePicture.Source = BitmapUtils.BitmapToSource(bmp);
         }
 
         private void ButtonSaveImage_Click(object sender, RoutedEventArgs e) {

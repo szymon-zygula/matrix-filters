@@ -5,13 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:matrix_filters"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="1500">
+        Title="MainWindow" Height="800" Width="1600">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="50*"/>
             <ColumnDefinition Width="25*"/>
             <ColumnDefinition Width="25*"/>
         </Grid.ColumnDefinitions>
+        <ScrollViewer
+            Grid.Column="0"
+            HorizontalScrollBarVisibility="Visible"
+            VerticalScrollBarVisibility="Visible"
+        >
+            <Image
+                Name="ImagePicture"
+            />
+        </ScrollViewer>
         <Grid Grid.Column="1">
             
         </Grid>
