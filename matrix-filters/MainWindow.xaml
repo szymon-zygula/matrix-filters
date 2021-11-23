@@ -19,7 +19,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="40px"/>
                 <RowDefinition Height="40px"/>
-                <RowDefinition Height="200px"/>
+                <RowDefinition Height="150px"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Button
@@ -60,15 +60,31 @@
                         Content="Circular brush"
                         Margin="5px 5px 5px 5px"
                         GroupName="FilterAreaType"
+                        Checked="CircularBrushFilterArea_Checked"
+                        Unchecked="CircularBrushFilterArea_Unchecked"
                     />
-                    <Slider
-                        Name="SliderBrushRadius"
-                        Grid.Row="2"
-                        Minimum="1"
-                        Value="100"
-                        Maximum="500"
-                        TickFrequency="1"
-                    />
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90*"/>
+                            <ColumnDefinition Width="10*"/>
+                        </Grid.ColumnDefinitions>
+                        <Slider
+                            Name="SliderBrushRadius"
+                            Grid.Column="0"
+                            Margin="5px 5px 5px 5px"
+                            Minimum="1"
+                            Value="100"
+                            Maximum="500"
+                            TickFrequency="1"
+                            ValueChanged="SliderBrushRadius_ValueChanged"
+                            IsEnabled="False"
+                        />
+                        <Label
+                            Name="LabelBrushRadius"
+                            Grid.Column="1"
+                            Content="100"
+                        />
+                    </Grid>
                     <Grid Grid.Row="3">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="66*"/>
@@ -76,9 +92,20 @@
                         </Grid.ColumnDefinitions>
                         <RadioButton
                             Name="PolygonFilterArea"
+                            Grid.Column="0"
                             Content="Polygon"
                             Margin="5px 5px 5px 5px"
                             GroupName="FilterAreaType"
+                            Checked="PolygonFilterArea_Checked"
+                            Unchecked="PolygonFilterArea_Unchecked"
+                        />
+                        <Button
+                            Name="ButtonCleanPolygon"
+                            Grid.Column="1"
+                            Margin="5px 5px 5px 5px"
+                            Content="Clean"
+                            Click="ButtonCleanPolygon_Click"
+                            IsEnabled="False"
                         />
                     </Grid>
                 </Grid>
@@ -87,7 +114,111 @@
                 Header="Matrix filter"
                 Grid.Row="3"
             >
-                
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30px"/>
+                        <RowDefinition Height="30px"/>
+                        <RowDefinition Height="30px"/>
+                        <RowDefinition Height="30px"/>
+                        <RowDefinition Height="30px"/>
+                        <RowDefinition Height="30px"/>
+                        <RowDefinition Height="50px"/>
+                        <RowDefinition Height="60px"/>
+                        <RowDefinition Height="30px"/>
+                    </Grid.RowDefinitions>
+                    <RadioButton
+                        Name="RadioIdentity"
+                        Grid.Row="0"
+                        Content="Identity"
+                        Margin="5px 5px 5px 5px"
+                        GroupName="MatrixFilterGroup"
+                        Checked="RadioIdentity_Checked"
+                    />
+                    <RadioButton
+                        Name="RadioBlur"
+                        Grid.Row="1"
+                        Content="Blur"
+                        Margin="5px 5px 5px 5px"
+                        GroupName="MatrixFilterGroup"
+                        Checked="RadioBlur_Checked"
+                    />
+                    <RadioButton
+                        Name="RadioSharpen"
+                        Grid.Row="2"
+                        Content="Sharpen"
+                        Margin="5px 5px 5px 5px"
+                        GroupName="MatrixFilterGroup"
+                        Checked="RadioSharpen_Checked"
+                    />
+                    <RadioButton
+                        Name="RadioRelief"
+                        Grid.Row="3"
+                        Content="Relief"
+                        Margin="5px 5px 5px 5px"
+                        GroupName="MatrixFilterGroup"
+                        Checked="RadioRelief_Checked"
+                    />
+                    <RadioButton
+                        Name="RadioEdgeDetection"
+                        Grid.Row="4"
+                        Content="Edge detection"
+                        Margin="5px 5px 5px 5px"
+                        GroupName="MatrixFilterGroup"
+                        Checked="RadioEdgeDetection_Checked"
+                    />
+                    <RadioButton
+                        Name="RadioCustom"
+                        Grid.Row="5"
+                        Content="Custom"
+                        Margin="5px 5px 5px 5px"
+                        GroupName="MatrixFilterGroup"
+                        Checked="RadioCustom_Checked"
+                    />
+                    <Grid Grid.Row="7">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Content="Shift"
+                        />
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Content="Divisor"
+                        />
+                        <TextBox
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Name="TextboxShift"
+                            Text="1"
+                            Margin="5px 5px 5px 5px"
+                        />
+                        <TextBox
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Name="TextboxDivisor"
+                            Margin="5px 5px 5px 5px"
+                            Text="1.0"
+                            IsEnabled="False"
+                        />
+                    </Grid>
+                    <CheckBox
+                        Name="CheckboxAutomaticDivisor"
+                        Grid.Row="8"
+                        Content="Automatic divisor"
+                        Margin="5px 5px 5px 5px"
+                        IsChecked="True"
+                        Checked="CheckboxAutomaticDivisor_Checked"
+                        Unchecked="CheckboxAutomaticDivisor_Unchecked"
+                    />
+                </Grid>
             </GroupBox>
         </Grid>
     </Grid>
