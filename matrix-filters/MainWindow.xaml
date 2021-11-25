@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:matrix_filters"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="1600">
+        Title="MainWindow" Height="900" Width="1600">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="50*"/>
@@ -22,7 +22,29 @@
             />
         </ScrollViewer>
         <Grid Grid.Column="1">
-            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="286"/>
+                <RowDefinition Height="286"/>
+                <RowDefinition Height="286"/>
+            </Grid.RowDefinitions>
+            <Image
+                Name="ImageRedHistogram"
+                Grid.Row="0"
+                Width="256"
+                Height="256"
+            />
+            <Image
+                Name="ImageGreenHistogram"
+                Grid.Row="1"
+                Width="256"
+                Height="256"
+            />
+            <Image
+                Name="ImageBlueHistogram"
+                Grid.Row="2"
+                Width="256"
+                Height="256"
+            />
         </Grid>
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>

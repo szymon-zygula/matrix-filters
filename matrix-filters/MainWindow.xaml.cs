@@ -3,9 +3,6 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace matrix_filters {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window {
         public MainWindow() {
             InitializeComponent();
@@ -17,6 +14,18 @@ namespace matrix_filters {
             }
 
             ImagePicture.Source = BitmapUtils.BitmapToSource(bmp);
+
+            Histogram redHistogram = new Histogram(16);
+            redHistogram.Update(bmp);
+            ImageRedHistogram.Source = redHistogram.CreateBitmapSource();
+
+            Histogram greenHistogram = new Histogram(8);
+            greenHistogram.Update(bmp);
+            ImageGreenHistogram.Source = greenHistogram.CreateBitmapSource();
+
+            Histogram blueHistogram = new Histogram(0);
+            blueHistogram.Update(bmp);
+            ImageBlueHistogram.Source = blueHistogram.CreateBitmapSource();
         }
 
         private void ButtonSaveImage_Click(object sender, RoutedEventArgs e) {
