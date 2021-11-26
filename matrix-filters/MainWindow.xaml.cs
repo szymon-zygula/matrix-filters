@@ -4,28 +4,42 @@ using System.Windows.Media;
 
 namespace matrix_filters {
     public partial class MainWindow : Window {
+        Histogram RedHistogram;
+        Histogram GreenHistogram;
+        Histogram BlueHistogram;
+        Texture Image;
+
         public MainWindow() {
             InitializeComponent();
+            CreateHistograms();
         }
+
+        private void CreateHistograms() {
+            RedHistogram = new Histogram(16);
+            GreenHistogram = new Histogram(8);
+            BlueHistogram = new Histogram(0);
+        }
+
         private void ButtonLoadImage_Click(object sender, RoutedEventArgs e) {
             Bitmap bmp = InterfaceUtils.GetBitmapFromDialog();
             if(bmp == null) {
                 return;
             }
 
-            ImagePicture.Source = BitmapUtils.BitmapToSource(bmp);
+            Image = new Texture(bmp);
+            ImagePicture.Source = Image.CreateBitmapSource();
+            UpdateHistograms();
+        }
 
-            Histogram redHistogram = new Histogram(16);
-            redHistogram.Update(bmp);
-            ImageRedHistogram.Source = redHistogram.CreateBitmapSource();
+        private void UpdateHistograms() {
+            RedHistogram.Update(Image);
+            ImageRedHistogram.Source = RedHistogram.CreateBitmapSource();
 
-            Histogram greenHistogram = new Histogram(8);
-            greenHistogram.Update(bmp);
-            ImageGreenHistogram.Source = greenHistogram.CreateBitmapSource();
+            GreenHistogram.Update(Image);
+            ImageGreenHistogram.Source = GreenHistogram.CreateBitmapSource();
 
-            Histogram blueHistogram = new Histogram(0);
-            blueHistogram.Update(bmp);
-            ImageBlueHistogram.Source = blueHistogram.CreateBitmapSource();
+            BlueHistogram.Update(Image);
+            ImageBlueHistogram.Source = BlueHistogram.CreateBitmapSource();
         }
 
         private void ButtonSaveImage_Click(object sender, RoutedEventArgs e) {

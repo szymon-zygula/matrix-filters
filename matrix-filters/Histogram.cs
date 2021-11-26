@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Drawing;
 using System.Linq;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -40,16 +38,16 @@ namespace matrix_filters {
             }
         }
 
-        private void UpdateValues(Bitmap bmp) {
-            for(int x = 0; x < bmp.Width; ++x) {
-                for(int y = 0; y < bmp.Height; ++y) {
-                    System.Drawing.Color color = bmp.GetPixel(x, y);
-                    Counts[(color.ToArgb() & Mask) >> ColorPosition] += 1;
+        private void UpdateValues(Texture texture) {
+            for(int x = 0; x < texture.Width; ++x) {
+                for(int y = 0; y < texture.Height; ++y) {
+                    Vec3 color = texture.Pixels[x, y];
+                    Counts[(color.ToColor() & Mask) >> ColorPosition] += 1;
                 }
             }
         }
 
-        private void UpdateScale(Bitmap bmp) {
+        private void UpdateScale() {
             int max = Counts.Max();
             Scale = max == 0 ? 0 : (double)HEIGHT / (double)max;
         }
@@ -85,10 +83,10 @@ namespace matrix_filters {
             DrawHistogram();
         }
 
-        public void Update(Bitmap bmp) {
+        public void Update(Texture texture) {
             CleanValues();
-            UpdateValues(bmp);
-            UpdateScale(bmp);
+            UpdateValues(texture);
+            UpdateScale();
             CleanImage();
             UpdateImage();
         }
