@@ -8,16 +8,22 @@ namespace matrix_filters {
         Histogram GreenHistogram;
         Histogram BlueHistogram;
         Texture Image;
+        Kernel Filter;
 
         public MainWindow() {
             InitializeComponent();
             CreateHistograms();
+            SetNewFilter(Kernel.Identity());
         }
 
         private void CreateHistograms() {
             RedHistogram = new Histogram(16);
             GreenHistogram = new Histogram(8);
             BlueHistogram = new Histogram(0);
+        }
+
+        private void KernelGrid_TextChanged(int x, int y, double val) {
+            Filter.Coefficients[x, y] = val;
         }
 
         private void ButtonLoadImage_Click(object sender, RoutedEventArgs e) {
@@ -72,28 +78,43 @@ namespace matrix_filters {
             ButtonCleanPolygon.IsEnabled = false;
         }
 
-        private void RadioIdentity_Checked(object sender, RoutedEventArgs e) {
+        private void SetNewFilter(Kernel filter) {
+            Filter = filter;
+            ScrollViewerKernelContainer.Content =
+                InterfaceUtils.CreateKernelGrid(Filter.Coefficients, KernelGrid_TextChanged);
+            TextBoxFilterSizeX.Text = Filter.Width.ToString();
+            TextBoxFilterSizeY.Text = Filter.Height.ToString();
+        }
 
+        private void RadioIdentity_Checked(object sender, RoutedEventArgs e) {
+            if (ScrollViewerKernelContainer == null) return;
+            SetNewFilter(Kernel.Identity());
         }
 
         private void RadioBlur_Checked(object sender, RoutedEventArgs e) {
-
+            SetNewFilter(Kernel.Blur());
         }
 
         private void RadioSharpen_Checked(object sender, RoutedEventArgs e) {
-
+            SetNewFilter(Kernel.Sharpen());
         }
 
         private void RadioRelief_Checked(object sender, RoutedEventArgs e) {
-
+            SetNewFilter(Kernel.Relief());
         }
 
         private void RadioEdgeDetection_Checked(object sender, RoutedEventArgs e) {
-
+            SetNewFilter(Kernel.EdgeDetection());
         }
 
         private void RadioCustom_Checked(object sender, RoutedEventArgs e) {
+            TextBoxFilterSizeX.IsEnabled = true;
+            TextBoxFilterSizeY.IsEnabled = true;
+        }
 
+        private void RadioCustom_Unchecked(object sender, RoutedEventArgs e) {
+            TextBoxFilterSizeX.IsEnabled = false;
+            TextBoxFilterSizeY.IsEnabled = false;
         }
 
         private void CheckboxAutomaticDivisor_Checked(object sender, RoutedEventArgs e) {
@@ -102,6 +123,26 @@ namespace matrix_filters {
 
         private void CheckboxAutomaticDivisor_Unchecked(object sender, RoutedEventArgs e) {
             TextboxDivisor.IsEnabled = true;
+        }
+
+        private void ResizeCustomFilter() {
+            try {
+                SetNewFilter(new Kernel(
+                    int.Parse(TextBoxFilterSizeX.Text),
+                    int.Parse(TextBoxFilterSizeY.Text)
+                ));
+            }
+            catch(System.FormatException) { }
+        }
+
+        private void TextBoxFilterSizeX_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+            if (!TextBoxFilterSizeX.IsEnabled || ScrollViewerKernelContainer == null) return;
+            ResizeCustomFilter();
+        }
+
+        private void TextBoxFilterSizeY_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+            if (!TextBoxFilterSizeY.IsEnabled || ScrollViewerKernelContainer == null) return;
+            ResizeCustomFilter();
         }
     }
 }

@@ -80,6 +80,7 @@
                     </Grid.RowDefinitions>
                     <RadioButton
                         Grid.Row="0"
+                        IsChecked="True"
                         Name="WholeImageFilterArea"
                         Content="Whole image"
                         Margin="5px 5px 5px 5px"
@@ -153,12 +154,14 @@
                         <RowDefinition Height="30px"/>
                         <RowDefinition Height="30px"/>
                         <RowDefinition Height="30px"/>
-                        <RowDefinition Height="50px"/>
+                        <RowDefinition Height="30px"/>
+                        <RowDefinition Height="300px"/>
                         <RowDefinition Height="60px"/>
                         <RowDefinition Height="30px"/>
                     </Grid.RowDefinitions>
                     <RadioButton
                         Name="RadioIdentity"
+                        IsChecked="True"
                         Grid.Row="0"
                         Content="Identity"
                         Margin="5px 5px 5px 5px"
@@ -204,8 +207,51 @@
                         Margin="5px 5px 5px 5px"
                         GroupName="MatrixFilterGroup"
                         Checked="RadioCustom_Checked"
+                        Unchecked="RadioCustom_Unchecked"
                     />
-                    <Grid Grid.Row="7">
+                    <Grid Grid.Row="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80px"/>
+                            <ColumnDefinition Width="60px"/>
+                            <ColumnDefinition Width="30px"/>
+                            <ColumnDefinition Width="60px"/>
+                        </Grid.ColumnDefinitions>
+                        <Label
+                            Grid.Column="0"
+                            Content="Filter size"
+                        />
+                        <TextBox
+                            Grid.Column="1"
+                            Name="TextBoxFilterSizeX"
+                            IsEnabled="False"
+                            TextAlignment="Center"
+                            Width="50px"
+                            Height="20px"
+                            TextChanged="TextBoxFilterSizeX_TextChanged"
+                        />
+                        <Label
+                            Grid.Column="2"
+                            Content="X"
+                            HorizontalAlignment="Center"
+                        />
+                        <TextBox
+                            Grid.Column="3"
+                            Name="TextBoxFilterSizeY"
+                            IsEnabled="False"
+                            TextAlignment="Center"
+                            Width="50px"
+                            Height="20px"
+                            TextChanged="TextBoxFilterSizeY_TextChanged"
+                        />
+                    </Grid>
+                    <ScrollViewer
+                        Name="ScrollViewerKernelContainer"
+                        Grid.Row="7"
+                        HorizontalScrollBarVisibility="Visible"
+                        VerticalScrollBarVisibility="Visible"
+                    >
+                    </ScrollViewer>
+                    <Grid Grid.Row="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition/>
@@ -242,7 +288,7 @@
                     </Grid>
                     <CheckBox
                         Name="CheckboxAutomaticDivisor"
-                        Grid.Row="8"
+                        Grid.Row="9"
                         Content="Automatic divisor"
                         Margin="5px 5px 5px 5px"
                         IsChecked="True"
