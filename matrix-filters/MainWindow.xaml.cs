@@ -22,8 +22,22 @@ namespace matrix_filters {
             BlueHistogram = new Histogram(0);
         }
 
+        private void EnsureCustomMode() {
+            if(!RadioCustom.IsChecked.Value) {
+                RadioCustom.IsChecked = true;
+            }
+        }
+
         private void KernelGrid_TextChanged(int x, int y, double val) {
+            double oldVal = Filter.Coefficients[x, y];
             Filter.Coefficients[x, y] = val;
+
+            EnsureCustomMode();
+
+            if(CheckboxAutomaticDivisor.IsChecked.Value) {
+                Filter.Divisor += val - oldVal;
+                TextboxDivisor.Text = Filter.Divisor.ToString();
+            }
         }
 
         private void ButtonLoadImage_Click(object sender, RoutedEventArgs e) {
@@ -34,6 +48,10 @@ namespace matrix_filters {
 
             Image = new Texture(bmp);
             ImagePicture.Source = Image.CreateBitmapSource();
+            ImagePicture.Width = Image.Width;
+            ImagePicture.Height = Image.Height;
+            CanvasImage.Width = Image.Width;
+            CanvasImage.Height = Image.Height;
             UpdateHistograms();
         }
 
@@ -84,6 +102,8 @@ namespace matrix_filters {
                 InterfaceUtils.CreateKernelGrid(Filter.Coefficients, KernelGrid_TextChanged);
             TextBoxFilterSizeX.Text = Filter.Width.ToString();
             TextBoxFilterSizeY.Text = Filter.Height.ToString();
+            TextboxDivisor.Text = Filter.Divisor.ToString();
+            TextboxShift.Text = Filter.AnchorX.ToString();
         }
 
         private void RadioIdentity_Checked(object sender, RoutedEventArgs e) {
@@ -110,15 +130,20 @@ namespace matrix_filters {
         private void RadioCustom_Checked(object sender, RoutedEventArgs e) {
             TextBoxFilterSizeX.IsEnabled = true;
             TextBoxFilterSizeY.IsEnabled = true;
+            TextboxShift.IsEnabled = true;
         }
 
         private void RadioCustom_Unchecked(object sender, RoutedEventArgs e) {
             TextBoxFilterSizeX.IsEnabled = false;
             TextBoxFilterSizeY.IsEnabled = false;
+            TextboxShift.IsEnabled = false;
         }
 
         private void CheckboxAutomaticDivisor_Checked(object sender, RoutedEventArgs e) {
             TextboxDivisor.IsEnabled = false;
+            if (Filter == null) return;
+            Filter.NormalizeDivisor();
+            TextboxDivisor.Text = Filter.Divisor.ToString();
         }
 
         private void CheckboxAutomaticDivisor_Unchecked(object sender, RoutedEventArgs e) {
@@ -143,6 +168,23 @@ namespace matrix_filters {
         private void TextBoxFilterSizeY_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
             if (!TextBoxFilterSizeY.IsEnabled || ScrollViewerKernelContainer == null) return;
             ResizeCustomFilter();
+        }
+
+        private void TextboxDivisor_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+            if (!TextboxDivisor.IsEnabled || Filter == null) return;
+            try {
+                Filter.Divisor = double.Parse(TextboxDivisor.Text);
+            }
+            catch(System.FormatException) { }
+        }
+
+        private void TextboxShift_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+            if (Filter == null || !TextboxShift.IsEnabled) return;
+            try {
+                Filter.AnchorX = int.Parse(TextboxShift.Text);
+                Filter.AnchorY = int.Parse(TextboxShift.Text);
+            }
+            catch(System.FormatException) { }
         }
     }
 }

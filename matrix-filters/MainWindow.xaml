@@ -17,9 +17,13 @@
             HorizontalScrollBarVisibility="Visible"
             VerticalScrollBarVisibility="Visible"
         >
-            <Image
-                Name="ImagePicture"
-            />
+            <Canvas
+                Name="CanvasImage"
+            >
+                <Image
+                    Name="ImagePicture"
+                />
+            </Canvas>
         </ScrollViewer>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
@@ -276,6 +280,8 @@
                             Name="TextboxShift"
                             Text="1"
                             Margin="5px 5px 5px 5px"
+                            TextChanged="TextboxShift_TextChanged"
+                            IsEnabled="False"
                         />
                         <TextBox
                             Grid.Row="1"
@@ -284,6 +290,7 @@
                             Margin="5px 5px 5px 5px"
                             Text="1.0"
                             IsEnabled="False"
+                            TextChanged="TextboxDivisor_TextChanged"
                         />
                     </Grid>
                     <CheckBox

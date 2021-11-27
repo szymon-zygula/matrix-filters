@@ -8,10 +8,10 @@ namespace matrix_filters {
         public int Width { get { return Coefficients.GetLength(0); } }
         public int Height { get { return Coefficients.GetLength(1); } }
 
-        int AnchorX;
-        int AnchorY;
+        public int AnchorX { get; set; }
+        public int AnchorY { get; set; }
 
-        double Divisor;
+        public double Divisor { get; set; }
 
         public Kernel(int width, int height) {
             Coefficients = new double[width, height];
@@ -30,10 +30,23 @@ namespace matrix_filters {
             }
         }
 
+        public void NormalizeDivisor() {
+            double sum = 0.0;
+            for(int i = 0; i < Width; ++i) {
+                for(int j = 0; j < Height; ++j) {
+                    sum += Coefficients[i, j];
+                }
+            }
+
+            Divisor = sum;
+        }
+
         public static Kernel Identity() {
             Kernel ker = new Kernel(DEFAULT_SIZE, DEFAULT_SIZE);
             ker.Coefficients[DEFAULT_SIZE / 2, DEFAULT_SIZE / 2] = 1.0;
             ker.Divisor = 1.0;
+            ker.AnchorX = 1;
+            ker.AnchorY = 1;
             return ker;
         }
 
