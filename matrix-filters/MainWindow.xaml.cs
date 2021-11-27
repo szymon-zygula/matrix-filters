@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace matrix_filters {
@@ -14,6 +15,7 @@ namespace matrix_filters {
             InitializeComponent();
             CreateHistograms();
             SetNewFilter(Kernel.Identity());
+            ToggleCoefficientBoxes(false);
         }
 
         private void CreateHistograms() {
@@ -28,7 +30,16 @@ namespace matrix_filters {
             }
         }
 
+        private void ToggleCoefficientBoxes(bool value) {
+            Grid kernelGrid = ScrollViewerKernelContainer.Content as Grid;
+            foreach(UIElement uie in kernelGrid.Children) {
+                uie.IsEnabled = value;
+            }
+        }
+
         private void KernelGrid_TextChanged(int x, int y, double val) {
+            if (!RadioCustom.IsChecked.Value) return;
+
             double oldVal = Filter.Coefficients[x, y];
             Filter.Coefficients[x, y] = val;
 
@@ -47,6 +58,10 @@ namespace matrix_filters {
             }
 
             Image = new Texture(bmp);
+            UpdatePicture();
+        }
+
+        private void UpdatePicture() {
             ImagePicture.Source = Image.CreateBitmapSource();
             ImagePicture.Width = Image.Width;
             ImagePicture.Height = Image.Height;
@@ -90,10 +105,12 @@ namespace matrix_filters {
 
         private void PolygonFilterArea_Checked(object sender, RoutedEventArgs e) {
             ButtonCleanPolygon.IsEnabled = true;
+            ButtonApplyPolygon.IsEnabled = true;
         }
 
         private void PolygonFilterArea_Unchecked(object sender, RoutedEventArgs e) {
             ButtonCleanPolygon.IsEnabled = false;
+            ButtonApplyPolygon.IsEnabled = false;
         }
 
         private void SetNewFilter(Kernel filter) {
@@ -104,6 +121,7 @@ namespace matrix_filters {
             TextBoxFilterSizeY.Text = Filter.Height.ToString();
             TextboxDivisor.Text = Filter.Divisor.ToString();
             TextboxShift.Text = Filter.AnchorX.ToString();
+            ToggleCoefficientBoxes(false);
         }
 
         private void RadioIdentity_Checked(object sender, RoutedEventArgs e) {
@@ -131,12 +149,16 @@ namespace matrix_filters {
             TextBoxFilterSizeX.IsEnabled = true;
             TextBoxFilterSizeY.IsEnabled = true;
             TextboxShift.IsEnabled = true;
+            CheckboxAutomaticDivisor.IsEnabled = true;
+            ToggleCoefficientBoxes(true);
         }
 
         private void RadioCustom_Unchecked(object sender, RoutedEventArgs e) {
             TextBoxFilterSizeX.IsEnabled = false;
             TextBoxFilterSizeY.IsEnabled = false;
             TextboxShift.IsEnabled = false;
+            CheckboxAutomaticDivisor.IsEnabled = false;
+            ToggleCoefficientBoxes(false);
         }
 
         private void CheckboxAutomaticDivisor_Checked(object sender, RoutedEventArgs e) {
@@ -156,6 +178,7 @@ namespace matrix_filters {
                     int.Parse(TextBoxFilterSizeX.Text),
                     int.Parse(TextBoxFilterSizeY.Text)
                 ));
+                ToggleCoefficientBoxes(true);
             }
             catch(System.FormatException) { }
         }
@@ -170,7 +193,7 @@ namespace matrix_filters {
             ResizeCustomFilter();
         }
 
-        private void TextboxDivisor_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+        private void TextboxDivisor_TextChanged(object sender, TextChangedEventArgs e) {
             if (!TextboxDivisor.IsEnabled || Filter == null) return;
             try {
                 Filter.Divisor = double.Parse(TextboxDivisor.Text);
@@ -178,13 +201,52 @@ namespace matrix_filters {
             catch(System.FormatException) { }
         }
 
-        private void TextboxShift_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+        private void TextboxShift_TextChanged(object sender, TextChangedEventArgs e) {
             if (Filter == null || !TextboxShift.IsEnabled) return;
             try {
                 Filter.AnchorX = int.Parse(TextboxShift.Text);
                 Filter.AnchorY = int.Parse(TextboxShift.Text);
             }
             catch(System.FormatException) { }
+        }
+
+        private void CanvasImage_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+
+        }
+
+        private void CanvasImage_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+
+        }
+
+        private void CanvasImage_MouseMove(object sender, System.Windows.Input.MouseEventArgs e) {
+
+        }
+
+        private void ButtonApplyPolygon_Click(object sender, RoutedEventArgs e) {
+            if (Image == null) return;
+
+        }
+
+        private void ButtonApplyWholeImage_Click(object sender, RoutedEventArgs e) {
+            if (Image == null) return;
+            Texture buffer = Image.Clone();
+            for(int x = 0; x < Image.Width; ++x) {
+                for (int y = 0; y < Image.Height; ++y) {
+                    buffer.Pixels[x, y] = Filter.Apply(Image, x, y);
+                }
+            }
+
+            Image = buffer;
+            UpdatePicture();
+        }
+
+        private void WholeImageFilterArea_Checked(object sender, RoutedEventArgs e) {
+            if (ButtonApplyWholeImage == null) return;
+            ButtonApplyWholeImage.IsEnabled = true;
+        }
+
+        private void WholeImageFilterArea_Unchecked(object sender, RoutedEventArgs e) {
+            ButtonApplyWholeImage.IsEnabled = false;
         }
     }
 }

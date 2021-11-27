@@ -8,16 +8,13 @@ namespace matrix_filters {
     // because System.Drawing.Bitmap.GetPixel too slow to be used in real time rendering
     public class Texture {
         public Vec3[,] Pixels;
-        public int Width;
-        public int Height;
+        public int Width { get { return Pixels.GetLength(0); } }
+        public int Height { get { return Pixels.GetLength(1); } }
         public Texture(Bitmap bitmap) {
             GraphicsUnit unit = GraphicsUnit.Pixel;
             RectangleF bounds = bitmap.GetBounds(ref unit);
 
-            Width = (int)bounds.Width;
-            Height = (int)bounds.Height;
-
-            Pixels = new Vec3[Width, Height];
+            Pixels = new Vec3[(int)bounds.Width, (int)bounds.Height];
 
             for(int x = 0; x < Width; ++x) {
                 for(int y = 0; y < Height; ++y) {
@@ -30,6 +27,20 @@ namespace matrix_filters {
                     Pixels[x, y] = new Vec3(convertedColor);
                 }
             }
+        }
+
+        private Texture(Texture texture) {
+            Pixels = new Vec3[texture.Width, texture.Height];
+            for (int x = 0; x < Width; ++x) {
+                for (int y = 0; y < Height; ++y) {
+                    Pixels[x, y] = texture.Pixels[x, y];
+                }
+            }
+        }
+
+        public Texture Clone() {
+            Texture clone = new Texture(this);
+            return clone;
         }
 
         public BitmapSource CreateBitmapSource() {

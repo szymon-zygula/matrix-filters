@@ -20,14 +20,25 @@ namespace matrix_filters {
             Divisor = 1.0;
         }
 
-        public void Apply(Texture texture, int x, int y) {
+        public Vec3 Apply(Texture texture, int x, int y) {
             Vec3 color = new Vec3();
 
             for(int i = 0; i < Coefficients.GetLength(0); ++i) {
                 for(int j = 0; j < Coefficients.GetLength(1); ++j) {
-                    color += texture.Pixels[x + i - AnchorX, y + j - AnchorY] * Coefficients[i, j] / Divisor;
+                    int X = x + i - AnchorX;
+                    int Y = y + j - AnchorY;
+
+                    if (X < 0) X = 0;
+                    else if (X >= texture.Width) X = texture.Width - 1;
+
+                    if (Y < 0) Y = 0;
+                    else if (Y >= texture.Height) Y = texture.Height - 1;
+
+                    color += texture.Pixels[X, Y] * Coefficients[i, j] / Divisor;
                 }
             }
+
+            return color;
         }
 
         public void NormalizeDivisor() {
@@ -53,14 +64,30 @@ namespace matrix_filters {
         public static Kernel Blur() {
             Kernel ker = new Kernel(DEFAULT_SIZE, DEFAULT_SIZE);
             ker.Coefficients[DEFAULT_SIZE / 2, DEFAULT_SIZE / 2] = 1.0;
-            ker.Divisor = 1.0;
+            for(int i = 0; i < ker.Width; ++i) {
+                for (int j = 0; j < ker.Height; ++j) {
+                    ker.Coefficients[i, j] = 1.0;
+                }
+            }
+
+            ker.Divisor = 9.0;
+            ker.AnchorX = 1;
+            ker.AnchorY = 1;
             return ker;
         }
 
         public static Kernel Sharpen() {
             Kernel ker = new Kernel(DEFAULT_SIZE, DEFAULT_SIZE);
             ker.Coefficients[DEFAULT_SIZE / 2, DEFAULT_SIZE / 2] = 1.0;
+            for(int i = 0; i < ker.Width; ++i) {
+                for (int j = 0; j < ker.Height; ++j) {
+                    ker.Coefficients[i, j] = -1.0;
+                }
+            }
+            ker.Coefficients[1, 1] = 9.0;
             ker.Divisor = 1.0;
+            ker.AnchorX = 1;
+            ker.AnchorY = 1;
             return ker;
         }
 
@@ -68,6 +95,8 @@ namespace matrix_filters {
             Kernel ker = new Kernel(DEFAULT_SIZE, DEFAULT_SIZE);
             ker.Coefficients[DEFAULT_SIZE / 2, DEFAULT_SIZE / 2] = 1.0;
             ker.Divisor = 1.0;
+            ker.AnchorX = 1;
+            ker.AnchorY = 1;
             return ker;
         }
 
@@ -75,6 +104,8 @@ namespace matrix_filters {
             Kernel ker = new Kernel(DEFAULT_SIZE, DEFAULT_SIZE);
             ker.Coefficients[DEFAULT_SIZE / 2, DEFAULT_SIZE / 2] = 1.0;
             ker.Divisor = 1.0;
+            ker.AnchorX = 1;
+            ker.AnchorY = 1;
             return ker;
         }
     }
