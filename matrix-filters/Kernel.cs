@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace matrix_filters {
     public class Kernel {
@@ -49,7 +50,7 @@ namespace matrix_filters {
                 }
             }
 
-            Divisor = sum;
+            Divisor = sum == 0 ? 1.0 : sum;
         }
 
         public static Kernel Identity() {
@@ -63,7 +64,6 @@ namespace matrix_filters {
 
         public static Kernel Blur() {
             Kernel ker = new Kernel(DEFAULT_SIZE, DEFAULT_SIZE);
-            ker.Coefficients[DEFAULT_SIZE / 2, DEFAULT_SIZE / 2] = 1.0;
             for(int i = 0; i < ker.Width; ++i) {
                 for (int j = 0; j < ker.Height; ++j) {
                     ker.Coefficients[i, j] = 1.0;
@@ -78,7 +78,6 @@ namespace matrix_filters {
 
         public static Kernel Sharpen() {
             Kernel ker = new Kernel(DEFAULT_SIZE, DEFAULT_SIZE);
-            ker.Coefficients[DEFAULT_SIZE / 2, DEFAULT_SIZE / 2] = 1.0;
             for(int i = 0; i < ker.Width; ++i) {
                 for (int j = 0; j < ker.Height; ++j) {
                     ker.Coefficients[i, j] = -1.0;
@@ -93,7 +92,15 @@ namespace matrix_filters {
 
         public static Kernel Relief() {
             Kernel ker = new Kernel(DEFAULT_SIZE, DEFAULT_SIZE);
-            ker.Coefficients[DEFAULT_SIZE / 2, DEFAULT_SIZE / 2] = 1.0;
+            ker.Coefficients[0, 0] = -1.0;
+            ker.Coefficients[1, 0] = -1.0;
+            ker.Coefficients[2, 0] = 0.0;
+            ker.Coefficients[0, 1] = -1.0;
+            ker.Coefficients[1, 1] = 1.0;
+            ker.Coefficients[2, 1] = 1.0;
+            ker.Coefficients[0, 2] = 0.0;
+            ker.Coefficients[1, 2] = 1.0;
+            ker.Coefficients[2, 2] = 1.0;
             ker.Divisor = 1.0;
             ker.AnchorX = 1;
             ker.AnchorY = 1;
@@ -101,11 +108,8 @@ namespace matrix_filters {
         }
 
         public static Kernel EdgeDetection() {
-            Kernel ker = new Kernel(DEFAULT_SIZE, DEFAULT_SIZE);
-            ker.Coefficients[DEFAULT_SIZE / 2, DEFAULT_SIZE / 2] = 1.0;
-            ker.Divisor = 1.0;
-            ker.AnchorX = 1;
-            ker.AnchorY = 1;
+            Kernel ker = Kernel.Sharpen();
+            ker.Coefficients[1, 1] = 8;
             return ker;
         }
     }

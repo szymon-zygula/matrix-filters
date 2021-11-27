@@ -1,7 +1,10 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace matrix_filters {
     public partial class MainWindow : Window {
@@ -10,6 +13,7 @@ namespace matrix_filters {
         Histogram BlueHistogram;
         Texture Image;
         Kernel Filter;
+        Texture DrawingBuffer;
 
         public MainWindow() {
             InitializeComponent();
@@ -43,10 +47,9 @@ namespace matrix_filters {
             double oldVal = Filter.Coefficients[x, y];
             Filter.Coefficients[x, y] = val;
 
-            EnsureCustomMode();
-
             if(CheckboxAutomaticDivisor.IsChecked.Value) {
                 Filter.Divisor += val - oldVal;
+                if (Filter.Divisor == 0.0) Filter.Divisor = 1.0;
                 TextboxDivisor.Text = Filter.Divisor.ToString();
             }
         }
@@ -88,6 +91,8 @@ namespace matrix_filters {
         private void SliderBrushRadius_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
             if(LabelBrushRadius != null) {
                 LabelBrushRadius.Content = ((int)e.NewValue).ToString();
+                EllipseBrush.Width = e.NewValue;
+                EllipseBrush.Height = e.NewValue;
             }
         }
 
@@ -97,10 +102,55 @@ namespace matrix_filters {
 
         private void CircularBrushFilterArea_Checked(object sender, RoutedEventArgs e) {
             SliderBrushRadius.IsEnabled = true;
+            EllipseBrush.Visibility = Visibility.Visible;
         }
 
         private void CircularBrushFilterArea_Unchecked(object sender, RoutedEventArgs e) {
             SliderBrushRadius.IsEnabled = false;
+            EllipseBrush.Visibility = Visibility.Hidden;
+        }
+
+        private void UpdateDrawingBuffer() {
+            if (DrawingBuffer == null || Image == null) return;
+            double r = SliderBrushRadius.Value / 2;
+            double x0 = Canvas.GetLeft(EllipseBrush) + r;
+            double y0 = Canvas.GetTop(EllipseBrush) + r;
+            Parallel.For((int)Math.Round(x0 - r), (int)Math.Round(x0 + r), (x) => {
+                int localRadius = (int)Math.Round(Math.Sqrt(r * r - (x - x0) * (x - x0)));
+                int lowerBound = (int)Math.Round(y0) - localRadius;
+                int upperBound = (int)Math.Round(y0) + localRadius;
+                for (int y = lowerBound; y <= upperBound; ++y) {
+                    int X = x;
+                    int Y = y;
+                    if (X < 0) X = 0;
+                    if (Y < 0) Y = 0;
+                    if (X >= Image.Width) X = Image.Width - 1;
+                    if (Y >= Image.Height) Y = Image.Height - 1;
+                    Image.Pixels[X, Y] = Filter.Apply(DrawingBuffer, X, Y);
+                }
+            });
+
+            UpdatePicture();
+        }
+
+        private void CanvasImage_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+            if (!CircularBrushFilterArea.IsChecked.Value) return;
+            DrawingBuffer = Image.Clone();
+            UpdateDrawingBuffer();
+        }
+
+        private void CanvasImage_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+            if (!CircularBrushFilterArea.IsChecked.Value) return;
+            UpdateDrawingBuffer();
+            DrawingBuffer = null;
+        }
+
+        private void CanvasImage_MouseMove(object sender, System.Windows.Input.MouseEventArgs e) {
+            System.Windows.Point mouse = e.GetPosition(CanvasImage);
+            Canvas.SetLeft(EllipseBrush, mouse.X - SliderBrushRadius.Value / 2);
+            Canvas.SetTop(EllipseBrush, mouse.Y - SliderBrushRadius.Value / 2);
+            if (DrawingBuffer == null) return;
+            UpdateDrawingBuffer();
         }
 
         private void PolygonFilterArea_Checked(object sender, RoutedEventArgs e) {
@@ -196,7 +246,9 @@ namespace matrix_filters {
         private void TextboxDivisor_TextChanged(object sender, TextChangedEventArgs e) {
             if (!TextboxDivisor.IsEnabled || Filter == null) return;
             try {
-                Filter.Divisor = double.Parse(TextboxDivisor.Text);
+                double divisor = double.Parse(TextboxDivisor.Text);
+                if (divisor == 0.0) return;
+                Filter.Divisor = divisor;
             }
             catch(System.FormatException) { }
         }
@@ -210,18 +262,6 @@ namespace matrix_filters {
             catch(System.FormatException) { }
         }
 
-        private void CanvasImage_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-
-        }
-
-        private void CanvasImage_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-
-        }
-
-        private void CanvasImage_MouseMove(object sender, System.Windows.Input.MouseEventArgs e) {
-
-        }
-
         private void ButtonApplyPolygon_Click(object sender, RoutedEventArgs e) {
             if (Image == null) return;
 
@@ -230,11 +270,11 @@ namespace matrix_filters {
         private void ButtonApplyWholeImage_Click(object sender, RoutedEventArgs e) {
             if (Image == null) return;
             Texture buffer = Image.Clone();
-            for(int x = 0; x < Image.Width; ++x) {
+            Parallel.For(0, Image.Width, (x) => {
                 for (int y = 0; y < Image.Height; ++y) {
                     buffer.Pixels[x, y] = Filter.Apply(Image, x, y);
                 }
-            }
+            });
 
             Image = buffer;
             UpdatePicture();

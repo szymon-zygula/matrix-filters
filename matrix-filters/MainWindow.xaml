@@ -26,6 +26,13 @@
                 <Image
                     Name="ImagePicture"
                 />
+                <Ellipse
+                    Name="EllipseBrush"
+                    Width="100"
+                    Height="100"
+                    Stroke="Black"
+                    Visibility="Hidden"
+                />
             </Canvas>
         </ScrollViewer>
         <Grid Grid.Column="1">
