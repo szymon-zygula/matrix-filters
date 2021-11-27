@@ -80,6 +80,7 @@
                 Content="Save Image"
                 Margin="5px 5px 5px 5px"
                 Click="ButtonSaveImage_Click"
+                IsEnabled="False"
             />
             <GroupBox
                 Header="Filter area"

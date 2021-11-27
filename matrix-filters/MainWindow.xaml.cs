@@ -28,12 +28,6 @@ namespace matrix_filters {
             BlueHistogram = new Histogram(0);
         }
 
-        private void EnsureCustomMode() {
-            if(!RadioCustom.IsChecked.Value) {
-                RadioCustom.IsChecked = true;
-            }
-        }
-
         private void ToggleCoefficientBoxes(bool value) {
             Grid kernelGrid = ScrollViewerKernelContainer.Content as Grid;
             foreach(UIElement uie in kernelGrid.Children) {
@@ -60,6 +54,8 @@ namespace matrix_filters {
                 return;
             }
 
+            ButtonSaveImage.IsEnabled = true;
+
             Image = new Texture(bmp);
             UpdatePicture();
         }
@@ -85,7 +81,7 @@ namespace matrix_filters {
         }
 
         private void ButtonSaveImage_Click(object sender, RoutedEventArgs e) {
-
+            InterfaceUtils.SaveImageWithDialog(ImagePicture);
         }
 
         private void SliderBrushRadius_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
