@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Collections.Generic;
 
 namespace matrix_filters {
     public partial class MainWindow : Window {
@@ -14,12 +15,15 @@ namespace matrix_filters {
         Texture Image;
         Kernel Filter;
         Texture DrawingBuffer;
+        List<Ellipse> PolygonVertices;
+        Polygon DrawingPolygon;
 
         public MainWindow() {
             InitializeComponent();
             CreateHistograms();
             SetNewFilter(Kernel.Identity());
             ToggleCoefficientBoxes(false);
+            PolygonVertices = new List<Ellipse>();
         }
 
         private void CreateHistograms() {
@@ -49,6 +53,11 @@ namespace matrix_filters {
         }
 
         private void ButtonLoadImage_Click(object sender, RoutedEventArgs e) {
+            CleanPolygon();
+            if(PolygonFilterArea.IsChecked.Value) {
+                CreateNewPolygon();
+            }
+
             Bitmap bmp = InterfaceUtils.GetBitmapFromDialog();
             if(bmp == null) {
                 return;
@@ -93,7 +102,8 @@ namespace matrix_filters {
         }
 
         private void ButtonCleanPolygon_Click(object sender, RoutedEventArgs e) {
-
+            CleanPolygon();
+            CreateNewPolygon();
         }
 
         private void CircularBrushFilterArea_Checked(object sender, RoutedEventArgs e) {
@@ -130,18 +140,59 @@ namespace matrix_filters {
         }
 
         private void CanvasImage_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-            if (!CircularBrushFilterArea.IsChecked.Value) return;
+            if (CircularBrushFilterArea.IsChecked.Value) BrushMouseDown();
+            if (PolygonFilterArea.IsChecked.Value) PolygonMouseDown(e);
+        }
+
+        private void PolygonMouseDown(System.Windows.Input.MouseButtonEventArgs e) {
+            const int POINT_SIZE = 10;
+            System.Windows.Point point = e.GetPosition(CanvasImage);
+            Ellipse newVertex = new Ellipse();
+            newVertex.Fill = (System.Windows.Media.Brush)new BrushConverter().ConvertFrom("Red");
+            newVertex.Width = POINT_SIZE;
+            newVertex.Height = POINT_SIZE;
+            Canvas.SetLeft(newVertex, point.X - POINT_SIZE / 2);
+            Canvas.SetTop(newVertex, point.Y - POINT_SIZE / 2);
+            CanvasImage.Children.Add(newVertex);
+            PolygonVertices.Add(newVertex);
+            DrawingPolygon.Points.Add(point);
+        }
+
+        private void CleanPolygon() {
+            foreach(Ellipse el in PolygonVertices) {
+                CanvasImage.Children.Remove(el);
+            }
+
+            PolygonVertices.Clear();
+            CanvasImage.Children.Remove(DrawingPolygon);
+        }
+
+        private void CreateNewPolygon() {
+            DrawingPolygon = new Polygon();
+            DrawingPolygon.Stroke = (System.Windows.Media.Brush)new BrushConverter().ConvertFrom("Green");
+            DrawingPolygon.StrokeThickness = 3;
+            CanvasImage.Children.Add(DrawingPolygon);
+        }
+
+        private void BrushMouseDown() {
             DrawingBuffer = Image.Clone();
             UpdateDrawingBuffer();
         }
 
         private void CanvasImage_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-            if (!CircularBrushFilterArea.IsChecked.Value) return;
+            if (CircularBrushFilterArea.IsChecked.Value) BrushMouseUp();
+        }
+
+        private void BrushMouseUp() {
             UpdateDrawingBuffer();
             DrawingBuffer = null;
         }
 
         private void CanvasImage_MouseMove(object sender, System.Windows.Input.MouseEventArgs e) {
+            if (CircularBrushFilterArea.IsChecked.Value) BrushMouseMove(e);
+        }
+
+        private void BrushMouseMove(System.Windows.Input.MouseEventArgs e) {
             System.Windows.Point mouse = e.GetPosition(CanvasImage);
             Canvas.SetLeft(EllipseBrush, mouse.X - SliderBrushRadius.Value / 2);
             Canvas.SetTop(EllipseBrush, mouse.Y - SliderBrushRadius.Value / 2);
@@ -152,9 +203,11 @@ namespace matrix_filters {
         private void PolygonFilterArea_Checked(object sender, RoutedEventArgs e) {
             ButtonCleanPolygon.IsEnabled = true;
             ButtonApplyPolygon.IsEnabled = true;
+            CreateNewPolygon();
         }
 
         private void PolygonFilterArea_Unchecked(object sender, RoutedEventArgs e) {
+            CleanPolygon();
             ButtonCleanPolygon.IsEnabled = false;
             ButtonApplyPolygon.IsEnabled = false;
         }
@@ -259,8 +312,18 @@ namespace matrix_filters {
         }
 
         private void ButtonApplyPolygon_Click(object sender, RoutedEventArgs e) {
+            Texture newImage = Image.Clone();
             if (Image == null) return;
+            for(int x = 0; x < Image.Width; ++x) {
+                for(int y = 0; y < Image.Height; ++y) {
+                    if(DrawingPolygon.RenderedGeometry.FillContains(new System.Windows.Point(x, y))) {
+                        newImage.Pixels[x, y] = Filter.Apply(Image, x, y);
+                    }
+                }
+            }
 
+            Image = newImage;
+            UpdatePicture();
         }
 
         private void ButtonApplyWholeImage_Click(object sender, RoutedEventArgs e) {
