@@ -22,6 +22,7 @@
                 MouseDown="CanvasImage_MouseDown"
                 MouseUp="CanvasImage_MouseUp"
                 MouseMove="CanvasImage_MouseMove"
+                MouseLeave="CanvasImage_MouseLeave"
             >
                 <Image
                     Name="ImagePicture"
@@ -83,6 +84,8 @@
                 IsEnabled="False"
             />
             <GroupBox
+                Name="GroupBoxFilterArea"
+                IsEnabled="False"
                 Header="Filter area"
                 Grid.Row="2"
             >
@@ -172,8 +175,10 @@
                 </Grid>
             </GroupBox>
             <GroupBox
+                Name="GroupBoxMatrixFilter"
                 Header="Matrix filter"
                 Grid.Row="3"
+                IsEnabled="False"
             >
                 <Grid>
                     <Grid.RowDefinitions>

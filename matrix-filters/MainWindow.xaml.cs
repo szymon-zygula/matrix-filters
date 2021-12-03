@@ -42,12 +42,10 @@ namespace matrix_filters {
         private void KernelGrid_TextChanged(int x, int y, double val) {
             if (!RadioCustom.IsChecked.Value) return;
 
-            double oldVal = Filter.Coefficients[x, y];
             Filter.Coefficients[x, y] = val;
 
             if(CheckboxAutomaticDivisor.IsChecked.Value) {
-                Filter.Divisor += val - oldVal;
-                if (Filter.Divisor == 0.0) Filter.Divisor = 1.0;
+                Filter.NormalizeDivisor();
                 TextboxDivisor.Text = Filter.Divisor.ToString();
             }
         }
@@ -66,6 +64,8 @@ namespace matrix_filters {
             ButtonSaveImage.IsEnabled = true;
 
             Image = new Texture(bmp);
+            GroupBoxFilterArea.IsEnabled = true;
+            GroupBoxMatrixFilter.IsEnabled = true;
             UpdatePicture();
         }
 
@@ -346,6 +346,10 @@ namespace matrix_filters {
 
         private void WholeImageFilterArea_Unchecked(object sender, RoutedEventArgs e) {
             ButtonApplyWholeImage.IsEnabled = false;
+        }
+
+        private void CanvasImage_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e) {
+            if (CircularBrushFilterArea.IsChecked.Value) BrushMouseUp();
         }
     }
 }
